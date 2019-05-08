@@ -1,0 +1,151 @@
+mobo_serial=$(dmidecode -s baseboard-serial-number)
+cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
+system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
+fan3_rpm=$(ipmitool -I open sdr | grep "FAN3" | awk {'print $3'})
+fana_rpm=$(ipmitool -I open sdr | grep "FANA" | awk {'print $3'})
+fanb_rpm=$(ipmitool -I open sdr | grep "FANB" | awk {'print $3'})
+
+echo "++++++++++++++++System Information+++++++++++++++++"
+echo "Motherboard Serial Number: $mobo_serial"
+echo "Starting CPU temperature: $cpu_temp"
+echo "Starting System temperature: $system_temp"
+echo "Starting FAN3 rpms: $fan3_rpm"
+echo "Starting FANA rpms: $fana_rpm"
+echo "Starting FANB rpms: $fanb_rpm"
+echo ""
+echo "++++++++++++++++Tests+++++++++++++++++++++++++++"
+
+declare -A tests
+
+SomethingFailed=false
+
+
+echo "++++++++Ensure fans are connected and working+++++++++++++"
+fans=(FANA FANB FAN3 FAN4)
+
+tests[fans]=👍
+
+for i in ${fans[@]};
+do
+        echo "Checking for fan $i"
+        ipmitool -I open sdr | grep $i | awk {'print $3'} | grep -q no
+        if [ $? = 0 ];
+        then
+                echo "🤬: Fan check failed: Fan $i missing"
+                SomethingFailed=true
+                tests[fans]=🤬
+        else
+                echo "👍: Fan Check Passed: Fan $i present"
+        fi
+done
+
+echo "+++++++++++Starting temperatures below 80 celsius++++++++++++"
+temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
+
+tests[starting_temps]=👍
+
+for i in "${temp_sensors[@]}";
+do
+        echo "Checking for sensor $i"
+        temps=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
+        if [ $temp > 80 ];
+        then
+                echo "🤬: Starting temperatures failed on sensor: $i"
+                SomethingFailed=true
+                tests[starting_temps]=🤬
+        else
+                echo "👍: Starting temperatures passed on sensor: $i"
+        fi
+done
+
+
+echo "+++++++Check for the correct amount of memory++++++++"
+
+if [ $(free -g | grep Mem  | awk {'print $2'}) -ne 7 ];
+then
+        echo "🤬: Failed memory check"
+        SomethingFailed=true
+        tests[memory]=🤬
+else
+        echo "👍: passed memory check"
+        tests[memory]=👍
+fi
+
+
+echo "+++++++Check to make sure all disks are present++++++++"
+disks=(sda sdb)
+
+tests[disks]=👍
+
+for i in ${disks[@]};
+do
+        echo "Checking for disk $i"
+        lsblk | grep -q $i
+        if [ $? = 1 ];
+        then
+                echo "🤬: Failed disk check: Disk $i missing"
+                DiskFailed=true
+                SomethingFailed=true
+                tests[disks]=🤬
+        else
+                echo "👍: Passed disk check: Disk $i present"
+        fi
+done
+
+
+prime95_duration="1m"
+echo "+++++++Running Prime95 for $prime95_duration and getting temperatures++++++++"
+
+timeout $prime95_duration mprime -t > /dev/null 2>&1
+
+echo "+++++++++++Checking temperatures again, ensuring below 80c++++++++++++"
+temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
+
+tests[ending_temps]=👍
+
+for i in "${temp_sensors[@]}";
+do
+        echo "Checking for sensor $i"
+        temps=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
+        if [ $temp > 80 ];
+        then
+                echo "🤬: Ending temperatures failed on sensor: $i"
+                SomethingFailed=true
+                tests[ending_temps]=🤬
+        else
+                echo "👍: Ending temperatures passed on sensor: $i"
+        fi
+done
+
+
+echo "++++++++ Ending Temperatures ++++++++++++++"
+cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
+system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
+fan3_rpm=$(ipmitool -I open sdr | grep "FAN3" | awk {'print $3'})
+fana_rpm=$(ipmitool -I open sdr | grep "FANA" | awk {'print $3'})
+fanb_rpm=$(ipmitool -I open sdr | grep "FANB" | awk {'print $3'})
+
+echo "++++++++++++++++Ending System Information+++++++++++++++++"
+echo "Starting CPU temperature: $cpu_temp"
+echo "Starting System temperature: $system_temp"
+echo "Starting FAN3 rpms: $fan3_rpm"
+echo "Starting FANA rpms: $fana_rpm"
+echo "Starting FANB rpms: $fanb_rpm"
+echo ""
+echo "++++++++++++++++Tests+++++++++++++++++++++++++++"
+
+
+
+echo "+++Final results!!!!!!+++"
+echo "++++Test Summary+++"
+for i in ${!tests[@]};
+do
+        echo "Test: $i passed?:  ${tests[$i]}"
+done
+
+if [ SomethingFailed ];
+then
+        echo "🤮 🤮 🤮 🤮 🤮 🤮 🤮 🤮  One or more tests failed  🤮 🤮 🤮 🤮 🤮 🤮 🤮"
+else
+        echo "😎 😎 😎 😎 😎 😎 😎 😎  All tests passed  😎 😎 😎 😎 😎 😎 😎"
+fi
