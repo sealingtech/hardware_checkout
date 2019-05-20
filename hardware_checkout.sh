@@ -45,14 +45,14 @@ tests[starting_temps]=👍
 for i in "${temp_sensors[@]}";
 do
         echo "Checking for sensor $i"
-        temps=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
+        temp=$(ipmitool -I open sdr | grep $i | awk {'print $4'})
         if [ $temp > 80 ];
         then
                 echo "🤬: Starting temperatures failed on sensor: $i"
                 SomethingFailed=true
                 tests[starting_temps]=🤬
         else
-                echo "👍: Starting temperatures passed on sensor: $i"
+                echo "👍: Starting temperatures passed on sensor: $i temp: $temp"
         fi
 done
 
@@ -131,14 +131,14 @@ tests[ending_temps]=👍
 for i in "${temp_sensors[@]}";
 do
         echo "Checking for sensor $i"
-        temps=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
+        temp=$(ipmitool -I open sdr | grep $i | awk {'print $4'})
         if [ $temp > 80 ];
         then
                 echo "🤬: Ending temperatures failed on sensor: $i"
                 SomethingFailed=true
                 tests[ending_temps]=🤬
         else
-                echo "👍: Ending temperatures passed on sensor: $i"
+                echo "👍: Ending temperatures passed on sensor: $i  temp: $temp"
         fi
 done
 
