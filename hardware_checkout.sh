@@ -1,3 +1,4 @@
+source configuration
 mobo_serial=$(dmidecode -s baseboard-serial-number)
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
 system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
@@ -21,7 +22,6 @@ SomethingFailed=false
 
 
 echo "++++++++Ensure fans are connected and working+++++++++++++"
-fans=(FANA FANB FAN3 FAN4)
 
 tests[fans]=👍
 
@@ -40,8 +40,6 @@ do
 done
 
 echo "+++++++++++Starting temperatures below 80 celsius++++++++++++"
-temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
-
 tests[starting_temps]=👍
 
 for i in "${temp_sensors[@]}";
@@ -61,7 +59,7 @@ done
 
 echo "+++++++Check for the correct amount of memory++++++++"
 
-if [ $(free -g | grep Mem  | awk {'print $2'}) -ne 7 ];
+if [ $(free -g | grep Mem  | awk {'print $2'}) -ne $expected_memory ];
 then
         echo "🤬: Failed memory check"
         SomethingFailed=true
@@ -73,7 +71,6 @@ fi
 
 
 echo "+++++++Check to make sure all disks are present++++++++"
-disks=(sda sdb)
 
 tests[disks]=👍
 
@@ -93,7 +90,35 @@ do
 done
 
 
-prime95_duration="1m"
+echo "+++++++++++Check to make sure Virtualization has been enabled++++++++++++"
+
+tests[virtualization]=👍
+egrep -wo 'vmx' /proc/cpuinfo  | sort | uniq | grep -q vmx
+if [ $? = 1 ];
+then
+	echo "🤬: Failed virtualization processor check.  Please enable virtualization in the BIOS"
+	SomethingFailed=true
+	tests[virtualization]=🤬
+else
+	echo "👍: Passed Virtualization Check"
+fi
+
+
+echo "+++++++++++Check to make sure SR-IOV has been enabled++++++++++++"
+
+tests[sriov]=👍
+lspci -vvv -s $pciaddress | grep -q SR-IOV
+if [ $? = 1 ];
+then
+        echo "🤬 : Failed SR-IOV check.  Please enable SR-IOV in the BIOS"
+        SomethingFailed=true
+        tests[sriov]=🤬
+else
+        echo "👍: Passed sriov Check"
+fi
+
+
+
 echo "+++++++Running Prime95 for $prime95_duration and getting temperatures++++++++"
 
 timeout $prime95_duration mprime -t > /dev/null 2>&1

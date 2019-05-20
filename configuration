@@ -1,0 +1,6 @@
+prime95_duration="1m"
+pciaddress="b5:00.0"
+disks=(sda sdb)
+temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
+fans=(FANA FANB FAN3 FAN4)
+expected_memory=251
