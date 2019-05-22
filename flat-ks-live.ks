@@ -267,11 +267,14 @@ chmod 755 /etc/rc.d/init.d/livesys-late
 # enable tmpfs for /tmp
 systemctl enable tmp.mount
 
+mkdir /hardwarelogs
+
 # make it so that we don't do writing to the overlay for things which
 # are just tmpdirs/caches
 # note https://bugzilla.redhat.com/show_bug.cgi?id=1135475
 cat >> /etc/fstab << EOF
 vartmp   /var/tmp    tmpfs   defaults   0  0
+hardwarelogs.sealingtech.com:/hardwarelogs	/hardwarelogs	nfs	defaults 0 0
 EOF
 
 # work around for poor key import UI in PackageKit
@@ -430,7 +433,7 @@ cat >> /etc/xdg/autostart/hardware_checkout.desktop << EOF
 Name=Hardware Checkout
 GenericName=Verifies hardware
 Comment=Will verify the hardware to ensure it meets the proper requirements
-Exec=/usr/bin/hardware_checkout.sh
+Exec=/usr/bin/hardware_checkout.sh | tee "/hardwarelogs/$(dmidecode -s baseboard-serial-number)-$(date)"
 Terminal=true
 Type=Application
 X-GNOME-Autostart-enabled=true
