@@ -1,4 +1,7 @@
-source configuration
+source /etc/configuration
+echo "Enter the name of the tester:"
+read tester_name
+echo "Tester name: $tester_name"
 mobo_serial=$(dmidecode -s baseboard-serial-number)
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
 system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
@@ -174,3 +177,8 @@ then
 else
         echo "😎 😎 😎 😎 😎 😎 😎 😎  All tests passed  😎 😎 😎 😎 😎 😎 😎"
 fi
+
+#make sure it doesn't quit until user presses enter
+echo "Press enter to quit"
+read ready
+
