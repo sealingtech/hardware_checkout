@@ -433,7 +433,7 @@ cat >> /etc/xdg/autostart/hardware_checkout.desktop << EOF
 Name=Hardware Checkout
 GenericName=Verifies hardware
 Comment=Will verify the hardware to ensure it meets the proper requirements
-Exec=/usr/bin/hardware_checkout.sh | tee "/hardwarelogs/$(dmidecode -s baseboard-serial-number)-$(date)"
+Exec=/usr/bin/hardware_checkout.sh 
 Terminal=true
 Type=Application
 X-GNOME-Autostart-enabled=true
