@@ -1,4 +1,4 @@
-exec 2> >(tee -ia $(dmidecode -s baseboard-serial-number)-$(date))
+#!/bin/bash
 source /hardwarelogs/configuration
 mobo_serial=$(dmidecode -s baseboard-serial-number)
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
@@ -6,6 +6,7 @@ system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
 fan3_rpm=$(ipmitool -I open sdr | grep "FAN3" | awk {'print $3'})
 fana_rpm=$(ipmitool -I open sdr | grep "FANA" | awk {'print $3'})
 fanb_rpm=$(ipmitool -I open sdr | grep "FANB" | awk {'print $3'})
+exec 2> >(tee -ia /hardwarelogs/"$mobo_serial-$(date)")
 
 echo "=====================Begin Testing: $(date) =============================="
 
