@@ -477,6 +477,8 @@ kernel
 kernel-modules
 kernel-modules-extra
 memtest86+
+nfs-utils
+nfs-utils-lib
 syslinux
 system-config-printer
 wget

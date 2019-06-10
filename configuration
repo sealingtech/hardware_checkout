@@ -10,3 +10,8 @@ temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp
 fans=(FANA FANB FAN3 FAN4)
 #Ensure the memory is correct (use free -g to get this exact value):
 expected_memory=251
+#Options to perform stress test: yes,no or ask
+perform_stress_test="ask"
+#NFS mount options
+nfs_mount_dir=12.34.56.789:/usr/lib/hardware_checkout/configuration
+nfs_nomount_dir=/usr/lib/hardware_checkout/configuration

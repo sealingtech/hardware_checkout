@@ -1,13 +1,43 @@
 #!/bin/bash
-source /etc/configuration
+mkdir -p /mnt/nfs/home
+mount 12.34.56.789:/home /mnt/nfs/home
+
+
+source ~/yajan/hardware_checkout/hardware_checkout/configuration
+if [ df -h | grep nfs ];
+then
+	source $nfs_mount_dir
+elif [ !df -h | grep nfs ];
+then 
+	source $nfs_nomount_dir
+fi
 mobo_serial=$(dmidecode -s baseboard-serial-number)
+smart_temp_file="/tmp/smartctl_tmp"
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
 system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
 fan3_rpm=$(ipmitool -I open sdr | grep "FAN3" | awk {'print $3'})
 fana_rpm=$(ipmitool -I open sdr | grep "FANA" | awk {'print $3'})
 fanb_rpm=$(ipmitool -I open sdr | grep "FANB" | awk {'print $3'})
-exec 2> >(tee -ia /hardwarelogs/"$mobo_serial-$(date)")
-
+if [ df -h | grep nfs ];
+then
+	exec 2> >(tee -ia 12.34.56.789:/hardwarelogs/"$mobo_serial-$(date)")
+fi
+if [ "$perform_stress_test" == "yes" ]; 
+then
+	run_p95="yes"
+	echo "YESSSSSSSSSSSSSS"
+elif [ "$perform_stress_test" == "no" ];
+then
+	run_p95="no"
+	echo "NOOOOOOOOOOOOOO"
+elif [ "$perform_stress_test" == "ask" ];
+then
+	echo "Config file specified to ask whether to run prime 95? Enter yes to run and no to not run"		#in case where user is asked
+	read run_p95
+else
+	echo "Valid option not given defaulting to running prime95"
+	run_p95="no"
+fi
 echo "=====================Begin Testing: $(date) =============================="
 
 echo "++++++++++++++++System Information+++++++++++++++++"
@@ -121,11 +151,31 @@ else
         echo "👍: Passed sriov Check"
 fi
 
+if [ $run_p95 == "yes" ];
+then
 
+	echo "+++++++Running Prime95 for $prime95_duration and getting temperatures++++++++"
 
-echo "+++++++Running Prime95 for $prime95_duration and getting temperatures++++++++"
+	timeout $prime95_duration mprime -t > /dev/null 2>&1
 
-timeout $prime95_duration mprime -t > /dev/null 2>&1
+else
+	echo "Prime 95 not run based on configuration file saying no or ask and user saying no at run time"
+
+fi
+
+echo "Running SMART tests of /dev/sda and /dev/sdb"
+smartctl -a /dev/sda > $smart_temp_file
+health=$(cat $smart_temp_file | grep -i "overall-health" | awk 'NF>1{print $NF}')
+if [ ! -z "$health" ]
+then
+	echo "Health of dev/sda:" $health
+fi
+smartctl -a  /dev/sdb > $smart_temp_file
+health=$(cat $smart_temp_file | grep -i "overall-health" | awk 'NF>1{print $NF}')
+if [ ! -z "$health" ]
+then 
+	echo "Health of dev/sdb:" $health
+fi
 
 echo "+++++++++++Checking temperatures again, ensuring below 80c++++++++++++"
 temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
