@@ -1,13 +1,40 @@
 #!/bin/bash
-source /etc/configuration
+mkdir -p /mnt/nfs/home
+mount 12.34.56.789:/home /mnt/nfs/home
+
+
+if [ df -h | grep nfs ];
+then
+	source $nfs_mount_dir
+elif [ !df -h | grep nfs ];
+then 
+	source $nfs_nomount_dir
+fi
 mobo_serial=$(dmidecode -s baseboard-serial-number)
+smart_temp_file="/tmp/smartctl_tmp"
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
 system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
 fan3_rpm=$(ipmitool -I open sdr | grep "FAN3" | awk {'print $3'})
 fana_rpm=$(ipmitool -I open sdr | grep "FANA" | awk {'print $3'})
 fanb_rpm=$(ipmitool -I open sdr | grep "FANB" | awk {'print $3'})
-exec 2> >(tee -ia /hardwarelogs/"$mobo_serial-$(date)")
-
+if [ df -h | grep nfs ];
+then
+	exec 2> >(tee -ia 12.34.56.789:/hardwarelogs/"$mobo_serial-$(date)")
+fi
+if [ "$perform_stress_test" == "yes" ]; 
+then
+	echo "YESSSSSSSSSSSSSS"
+elif [ "$perform_stress_test" == "no" ];
+then
+	echo "NOOOOOOOOOOOOOO"
+elif [ "$perform_stress_test" == "ask" ];
+then
+	echo "Config file specified to ask whether to run prime 95? Enter yes to run and no to not run"		#in case where user is asked
+	read perform_stress_test
+else
+	echo "Valid option not given defaulting to not running prime95"
+	perform_stress_test="no"
+fi
 echo "=====================Begin Testing: $(date) =============================="
 
 echo "++++++++++++++++System Information+++++++++++++++++"
@@ -121,11 +148,37 @@ else
         echo "👍: Passed sriov Check"
 fi
 
+if [ $perform_stress_test == "yes" ];
+then
 
+	echo "+++++++Running Prime95 for $prime95_duration and getting temperatures++++++++"
 
-echo "+++++++Running Prime95 for $prime95_duration and getting temperatures++++++++"
+	timeout $prime95_duration mprime -t > /dev/null 2>&1
 
-timeout $prime95_duration mprime -t > /dev/null 2>&1
+else
+	echo "Prime 95 not run based on configuration file saying no or ask and user saying no at run time"
+
+fi
+
+echo "Running SMART tests of drives in configuration"
+
+tests[disks]=👍
+
+for i in "${disks[@]}";
+do
+
+	health=$(smartctl -a $i | cat $smart_temp_file | grep -i "overall-health" | awk 'NF>1{print $NF}')
+	echo $health
+	if [ $health == "PASSED" ];
+	then
+		echo "👍: SMART check passed"
+	elif [ $health == "FAILED" ];
+	then
+		SomethingFailed=True
+		tests[disks]=🤬
+		echo "🤬:SMART check failed"
+	fi
+done
 
 echo "+++++++++++Checking temperatures again, ensuring below 80c++++++++++++"
 temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
