@@ -3,7 +3,6 @@ mkdir -p /mnt/nfs/home
 mount 12.34.56.789:/home /mnt/nfs/home
 
 
-source ~/yajan/hardware_checkout/hardware_checkout/configuration
 if [ df -h | grep nfs ];
 then
 	source $nfs_mount_dir
@@ -24,19 +23,17 @@ then
 fi
 if [ "$perform_stress_test" == "yes" ]; 
 then
-	run_p95="yes"
 	echo "YESSSSSSSSSSSSSS"
 elif [ "$perform_stress_test" == "no" ];
 then
-	run_p95="no"
 	echo "NOOOOOOOOOOOOOO"
 elif [ "$perform_stress_test" == "ask" ];
 then
 	echo "Config file specified to ask whether to run prime 95? Enter yes to run and no to not run"		#in case where user is asked
-	read run_p95
+	read perform_stress_test
 else
-	echo "Valid option not given defaulting to running prime95"
-	run_p95="no"
+	echo "Valid option not given defaulting to not running prime95"
+	perform_stress_test="no"
 fi
 echo "=====================Begin Testing: $(date) =============================="
 
@@ -151,7 +148,7 @@ else
         echo "👍: Passed sriov Check"
 fi
 
-if [ $run_p95 == "yes" ];
+if [ $perform_stress_test == "yes" ];
 then
 
 	echo "+++++++Running Prime95 for $prime95_duration and getting temperatures++++++++"
@@ -163,19 +160,25 @@ else
 
 fi
 
-echo "Running SMART tests of /dev/sda and /dev/sdb"
-smartctl -a /dev/sda > $smart_temp_file
-health=$(cat $smart_temp_file | grep -i "overall-health" | awk 'NF>1{print $NF}')
-if [ ! -z "$health" ]
-then
-	echo "Health of dev/sda:" $health
-fi
-smartctl -a  /dev/sdb > $smart_temp_file
-health=$(cat $smart_temp_file | grep -i "overall-health" | awk 'NF>1{print $NF}')
-if [ ! -z "$health" ]
-then 
-	echo "Health of dev/sdb:" $health
-fi
+echo "Running SMART tests of drives in configuration"
+
+tests[disks]=👍
+
+for i in "${disks[@]}";
+do
+
+	health=$(smartctl -a $i | cat $smart_temp_file | grep -i "overall-health" | awk 'NF>1{print $NF}')
+	echo $health
+	if [ $health == "PASSED" ];
+	then
+		echo "👍: SMART check passed"
+	elif [ $health == "FAILED" ];
+	then
+		SomethingFailed=True
+		tests[disks]=🤬
+		echo "🤬:SMART check failed"
+	fi
+done
 
 echo "+++++++++++Checking temperatures again, ensuring below 80c++++++++++++"
 temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
