@@ -1,5 +1,5 @@
 #!/bin/bash
-source /etc/configuration
+source /hardwarelogs/configuration
 mobo_serial=$(dmidecode -s baseboard-serial-number)
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
 system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
