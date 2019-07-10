@@ -81,7 +81,7 @@ tests[disks]=👍
 for i in ${disks[@]};
 do
         echo "Checking for disk $i"
-        lsblk | grep -q $i
+        lsscsi | grep -q $i
         if [ $? = 1 ];
         then
                 echo "🤬: Failed disk check: Disk $i missing"
