@@ -49,8 +49,8 @@ tests[starting_temps]=👍
 for i in "${temp_sensors[@]}";
 do
         echo "Checking for sensor $i"
-        temp=$(ipmitool -I open sdr | grep $i | awk {'print $4'})
-        if [ $temp > 80 ];
+        temp=$(ipmitool -I open sdr | grep "$i" | awk {'print $4'})
+        if [ $temp -gt 80 ];
         then
                 echo "🤬: Starting temperatures failed on sensor: $i"
                 SomethingFailed=true
@@ -128,15 +128,14 @@ echo "+++++++Running Prime95 for $prime95_duration and getting temperatures+++++
 timeout $prime95_duration mprime -t > /dev/null 2>&1
 
 echo "+++++++++++Checking temperatures again, ensuring below 80c++++++++++++"
-temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
 
 tests[ending_temps]=👍
 
 for i in "${temp_sensors[@]}";
 do
         echo "Checking for sensor $i"
-        temp=$(ipmitool -I open sdr | grep $i | awk {'print $4'})
-        if [ $temp > 80 ];
+        temp=$(ipmitool -I open sdr | grep "$i" | awk {'print $4'})
+        if [ $temp -gt 80 ];
         then
                 echo "🤬: Ending temperatures failed on sensor: $i"
                 SomethingFailed=true
