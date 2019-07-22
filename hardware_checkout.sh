@@ -171,7 +171,7 @@ do
         echo "Test: $i passed?:  ${tests[$i]}"
 done
 
-if [ SomethingFailed ];
+if [ "$SomethingFailed" = true ];
 then
         echo "🤮 🤮 🤮 🤮 🤮 🤮 🤮 🤮  One or more tests failed  🤮 🤮 🤮 🤮 🤮 🤮 🤮"
 else
