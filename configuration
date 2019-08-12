@@ -1,12 +1,12 @@
 #How long you want the prime_95 test to run
-prime95_duration="1m"
+prime95_duration="60m"
 #The hardware address of one of the NICs to check SR-IOV for.  You enable them for all in one shot, so any should do
 pciaddress="b5:00.0"
 #Ensure the following disks are present
-disks=(sda sdb)
+disks=("0:0:0:0" "1:0:0:0" "2:0:0:0" "3:0:0:0" "4:0:0:0" "N:0:1:1")
 #Grab the temperatures from the following  For a valid this, run the command "ipmitool -I open sdr":
-temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp")
+temp_sensors=("CPU Temp" "PCH Temp" "System Temp" "Peripheral Temp" "MB_10G Temp" "VRMCpu Temp" "VRMAB Temp" "VRMDE Temp" "DIMMA1 Temp" "DIMMB1 Temp" "DIMMD1 Temp" "DIMME1 Temp")
 #Make sure the following fans are returning RPMs (i.e. connected):
-fans=(FANA FANB FAN3 FAN4)
+fans=(FANA FANB FAN3)
 #Ensure the memory is correct (use free -g to get this exact value):
 expected_memory=251
