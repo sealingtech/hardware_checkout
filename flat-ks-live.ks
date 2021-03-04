@@ -427,6 +427,33 @@ ip a
 
 nslookup google.com
 
+wget https://raw.githubusercontent.com/tsjolie/hardware_checkout/master/hardware_checkout.sh
+chmod +x hardware_checkout.sh
+cp hardware_checkout.sh /usr/bin
+
+wget https://raw.githubusercontent.com/tsjolie/hardware_checkout/master/wipe.sh
+chmod +x wipe.sh
+cp wipe.sh /usr/bin
+
+wget http://www.mersenne.org/ftp_root/gimps/p95v298b3.linux64.tar.gz
+tar xvzf p95v298b3.linux64.tar.gz
+cp mprime /usr/bin
+
+cat >> /etc/xdg/autostart/hardware_checkout.desktop << EOF
+[Desktop Entry]
+Name=Hardware Checkout
+GenericName=Verifies hardware
+Comment=Will verify the hardware to ensure it meets the proper requirements
+Exec=sudo /usr/bin/hardware_checkout.sh
+Terminal=true
+Type=Application
+X-GNOME-Autostart-enabled=true
+EOF
+
+wget https://raw.githubusercontent.com/tsjolie/hardware_checkout/master/configuration
+chmod +x configuration
+cp configuration /etc/configuration
+
 %end
 
 %packages
