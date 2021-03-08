@@ -427,11 +427,11 @@ ip a
 
 nslookup google.com
 
-cp /mnt/networkshare/scripts/hardware_checkout.sh .
+cp /networkshare/scripts/hardware_checkout.sh .
 chmod +x hardware_checkout.sh
 cp hardware_checkout.sh /usr/bin
 
-cp /mnt/networkshare/scripts/wipe.sh .
+cp /networkshare/scripts/wipe.sh .
 chmod +x wipe.sh
 cp wipe.sh /usr/bin
 
