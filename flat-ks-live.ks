@@ -427,11 +427,11 @@ ip a
 
 nslookup google.com
 
-wget https://raw.githubusercontent.com/tsjolie/hardware_checkout/master/hardware_checkout.sh
+cp /mnt/networkshare/scripts/hardware_checkout.sh .
 chmod +x hardware_checkout.sh
 cp hardware_checkout.sh /usr/bin
 
-wget https://raw.githubusercontent.com/tsjolie/hardware_checkout/master/wipe.sh
+cp /mnt/networkshare/scripts/wipe.sh .
 chmod +x wipe.sh
 cp wipe.sh /usr/bin
 
