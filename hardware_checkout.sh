@@ -178,18 +178,19 @@ else
         echo "😎 😎 😎 😎 😎 😎 😎 😎  All tests passed  😎 😎 😎 😎 😎 😎 😎"
 fi
 
-echo "Enter chassis serial number"
-read serial_num
-echo "Chassis serial number $serial_num"
+serial_num=$(dmidecode -s baseboard-serial-number)
+#echo "Enter chassis serial number"
+#read serial_num
+#echo "Chassis serial number $serial_num"
 
-echo "Enter the name of who built the system"
-read builder_name
-echo "Builder name: $builder_name"
+#echo "Enter the name of who built the system"
+#read builder_name
+#echo "Builder name: $builder_name"
 
 
-echo "Enter the name of the tester:"
-read tester_name
-echo "Tester name: $tester_name"
+#echo "Enter the name of the tester:"
+#read tester_name
+#echo "Tester name: $tester_name"
 
 #make sure it doesn't quit until user presses enter
 echo "Press enter to quit"
