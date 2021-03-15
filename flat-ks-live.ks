@@ -427,17 +427,9 @@ ip a
 
 nslookup google.com
 
-cp /networkshare/scripts/hardware_checkout.sh .
-chmod +x hardware_checkout.sh
-cp hardware_checkout.sh /usr/bin
-
-cp /networkshare/scripts/wipe.sh .
-chmod +x wipe.sh
-cp wipe.sh /usr/bin
-
-cp /networkshare/sum_2.5.0_Linux_x86_64 .
-chmod +x sum_2.5.0_Linux_x86_64/*
-cp -r sum_2.5.0_Linux_x86_64 /usr/bin
+cp /networkshare/scripts/hardware_checkout.sh /usr/bin
+cp /networkshare/scripts/wipe.sh /usr/bin
+cp -r /networkshare/scripts/sum_2.5.0_Linux_x86_64 /usr/bin
 
 wget http://www.mersenne.org/ftp_root/gimps/p95v298b3.linux64.tar.gz
 tar xvzf p95v298b3.linux64.tar.gz
