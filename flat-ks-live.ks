@@ -446,9 +446,6 @@ Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
 
-wget https://raw.githubusercontent.com/tsjolie/hardware_checkout/master/configuration
-chmod +x configuration
-cp configuration /etc/configuration
 
 %end
 
