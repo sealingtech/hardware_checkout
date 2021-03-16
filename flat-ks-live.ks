@@ -26,7 +26,7 @@ selinux --enforcing
 # System services
 services --disabled="sshd" --enabled="NetworkManager,ModemManager"
 # System bootloader configuration
-bootloader --location=none
+bootloader --location=none --append="iomem=relaxed"
 # Clear the Master Boot Record
 zerombr
 # Partition clearing information
