@@ -1,12 +1,13 @@
 #!/bin/bash
 source /mnt/networkshare/configs/configuration
 mobo_serial=$(dmidecode -s baseboard-serial-number)
+serial_num=$(dmidecode -s baseboard-serial-number)
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
 system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
 fan3_rpm=$(ipmitool -I open sdr | grep "FAN3" | awk {'print $3'})
 fana_rpm=$(ipmitool -I open sdr | grep "FANA" | awk {'print $3'})
 fanb_rpm=$(ipmitool -I open sdr | grep "FANB" | awk {'print $3'})
-exec > >(tee -ia /hardwarelogs/"$mobo_serial-$(date)")
+exec > >(tee -ia /networkshare/hardwarelogs/"$serial_num-$(date)")
 
 echo "=====================Begin Testing: $(date) =============================="
 
@@ -177,20 +178,6 @@ then
 else
         echo "😎 😎 😎 😎 😎 😎 😎 😎  All tests passed  😎 😎 😎 😎 😎 😎 😎"
 fi
-
-serial_num=$(dmidecode -s baseboard-serial-number)
-#echo "Enter chassis serial number"
-#read serial_num
-#echo "Chassis serial number $serial_num"
-
-#echo "Enter the name of who built the system"
-#read builder_name
-#echo "Builder name: $builder_name"
-
-
-#echo "Enter the name of the tester:"
-#read tester_name
-#echo "Tester name: $tester_name"
 
 #make sure it doesn't quit until user presses enter
 echo "Press enter to quit"
