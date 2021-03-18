@@ -427,14 +427,9 @@ ip a
 
 nslookup google.com
 
-
-wget http://10.11.0.51:8080/share/scripts/hardware_checkout.sh
-chmod +x hardware_checkout.sh
-cp hardware_checkout.sh /usr/bin
-
-wget http://10.11.0.51:8080/share/scripts/wipe.sh
-chmod +x wipe.sh
-cp wipe.sh /usr/bin
+wget http://10.11.0.51:8080/share/scripts/scriptload.sh
+chmod +x scriptload.sh
+cp scriptload.sh /usr/bin
 
 wget http://www.mersenne.org/ftp_root/gimps/p95v298b3.linux64.tar.gz
 tar xvzf p95v298b3.linux64.tar.gz
@@ -446,10 +441,10 @@ cp -r sum_2.5.0_Linux_x86_64 /usr/bin
 
 cat >> /etc/xdg/autostart/hardware_checkout.desktop << EOF
 [Desktop Entry]
-Name=Hardware Checkout
-GenericName=Verifies hardware
-Comment=Will verify the hardware to ensure it meets the proper requirements
-Exec=sudo /usr/bin/hardware_checkout.sh
+Name=Script Load
+GenericName=Loads scripts
+Comment=Will download scripts from network share
+Exec=sudo /usr/bin/scriptload.sh
 Terminal=true
 Type=Application
 X-GNOME-Autostart-enabled=true
