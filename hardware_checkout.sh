@@ -1,17 +1,18 @@
 #!/bin/bash
-source /mnt/networkshare/configs/configuration
+source /networkshare/configs/configuration
 mobo_serial=$(dmidecode -s baseboard-serial-number)
-serial_num=$(dmidecode -s baseboard-serial-number)
+serial_num=$(dmidecode -s chassis-serial-number)
 cpu_temp=$(ipmitool -I open sdr | grep CPU | awk {'print $4'})
 system_temp=$(ipmitool -I open sdr | grep "PCH Temp" | awk {'print $4'})
 fan3_rpm=$(ipmitool -I open sdr | grep "FAN3" | awk {'print $3'})
 fana_rpm=$(ipmitool -I open sdr | grep "FANA" | awk {'print $3'})
 fanb_rpm=$(ipmitool -I open sdr | grep "FANB" | awk {'print $3'})
-exec > >(tee -ia /networkshare/hardwarelogs/"$serial_num-$(date)")
+exec > >(tee -ia /networkshare/hardwarelogs/"$serial_num")
 
 echo "=====================Begin Testing: $(date) =============================="
 
 echo "++++++++++++++++System Information+++++++++++++++++"
+echo "Chassis Serial Number: $serial_num"
 echo "Motherboard Serial Number: $mobo_serial"
 echo "Starting CPU temperature: $cpu_temp"
 echo "Starting System temperature: $system_temp"
@@ -178,8 +179,3 @@ then
 else
         echo "😎 😎 😎 😎 😎 😎 😎 😎  All tests passed  😎 😎 😎 😎 😎 😎 😎"
 fi
-
-#make sure it doesn't quit until user presses enter
-echo "Press enter to quit"
-read ready
-
