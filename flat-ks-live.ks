@@ -427,9 +427,9 @@ ip a
 
 nslookup google.com
 
-wget http://10.11.0.51:8080/share/scripts/scriptload.sh
-chmod +x scriptload.sh
-cp scriptload.sh /usr/bin
+wget http://10.11.0.51:8080/share/scripts/loadscripts.sh
+chmod +x loadscripts.sh
+cp loadscripts.sh /usr/bin
 
 wget http://www.mersenne.org/ftp_root/gimps/p95v298b3.linux64.tar.gz
 tar xvzf p95v298b3.linux64.tar.gz
