@@ -178,4 +178,7 @@ then
         echo "🤮 🤮 🤮 🤮 🤮 🤮 🤮 🤮  One or more tests failed  🤮 🤮 🤮 🤮 🤮 🤮 🤮"
 else
         echo "😎 😎 😎 😎 😎 😎 😎 😎  All tests passed  😎 😎 😎 😎 😎 😎 😎"
+	ipmitool  raw 0x30 0x0d
 fi
+
+read -p "entry to quit"
