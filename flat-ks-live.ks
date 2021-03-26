@@ -444,7 +444,7 @@ cat >> /etc/xdg/autostart/hardware_checkout.desktop << EOF
 Name=Script Load
 GenericName=Loads scripts
 Comment=Will download scripts from network share
-Exec=sudo /usr/bin/scriptload.sh
+Exec=sudo /usr/bin/loadscripts.sh
 Terminal=true
 Type=Application
 X-GNOME-Autostart-enabled=true
