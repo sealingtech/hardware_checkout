@@ -12,14 +12,14 @@ shutdown
 # System timezone
 timezone US/Eastern
 # Network information
-network  --bootproto=dhcp --nameserver=172.16.100.1 --activate
+network  --bootproto=dhcp --nameserver=10.16.0.1 --activate
 # System authorization information
 auth --useshadow --passalgo=sha512
 # Firewall configuration
 firewall --enabled --service=mdns
-repo --name="rawhide" --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=$basearch
+repo --name="33" --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-33&arch=x86_64
 # Use network installation
-url --mirrorlist="https://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=$basearch"
+url --mirrorlist="https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-33&arch=x86_64
 # SELinux configuration
 selinux --enforcing
 
