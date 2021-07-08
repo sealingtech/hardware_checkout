@@ -12,27 +12,27 @@ shutdown
 # System timezone
 timezone US/Eastern
 # Network information
-network  --bootproto=dhcp --nameserver=172.16.100.1 --activate
+network  --bootproto=dhcp --nameserver=10.16.0.1 --activate
 # System authorization information
 auth --useshadow --passalgo=sha512
 # Firewall configuration
 firewall --enabled --service=mdns
-repo --name="rawhide" --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=$basearch
+repo --name="33" --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-33&arch=x86_64
 # Use network installation
-url --mirrorlist="https://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=$basearch"
+url --mirrorlist="https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-33&arch=x86_64
 # SELinux configuration
 selinux --enforcing
 
 # System services
 services --disabled="sshd" --enabled="NetworkManager,ModemManager"
 # System bootloader configuration
-bootloader --location=none
+bootloader --location=none --append="iomem=relaxed"
 # Clear the Master Boot Record
 zerombr
 # Partition clearing information
 clearpart --all
 # Disk partitioning information
-part / --fstype="ext4" --size=5120
+part / --fstype="ext4" --size=8192
 
 %post --log=/root/ks-post.log
 
@@ -270,14 +270,14 @@ chmod 755 /etc/rc.d/init.d/livesys-late
 # enable tmpfs for /tmp
 systemctl enable tmp.mount
 
-mkdir /hardwarelogs
+mkdir /networkshare
 
 # make it so that we don't do writing to the overlay for things which
 # are just tmpdirs/caches
 # note https://bugzilla.redhat.com/show_bug.cgi?id=1135475
 cat >> /etc/fstab << EOF
 vartmp   /var/tmp    tmpfs   defaults   0  0
-hardwarelogs.sealingtech.com:/hardwarelogs      /hardwarelogs   nfs     defaults 0 0
+10.16.0.2:/mnt/stager-storage/share      /networkshare   nfs     defaults 0 0
 EOF
 
 # work around for poor key import UI in PackageKit
@@ -427,33 +427,29 @@ ip a
 
 nslookup google.com
 
-
-wget https://raw.githubusercontent.com/sealingtech/hardware_checkout/master/hardware_checkout.sh
-chmod +x hardware_checkout.sh
-cp hardware_checkout.sh /usr/bin
-
-wget https://raw.githubusercontent.com/sealingtech/hardware_checkout/master/wipe.sh
-chmod +x wipe.sh
-cp wipe.sh /usr/bin
+wget http://10.11.0.51:8080/share/scripts/loadscripts.sh
+chmod +x loadscripts.sh
+cp loadscripts.sh /usr/bin
 
 wget http://www.mersenne.org/ftp_root/gimps/p95v298b3.linux64.tar.gz
 tar xvzf p95v298b3.linux64.tar.gz
 cp mprime /usr/bin
 
+wget -R http://10.11.0.51:8080/share/scripts/sum_2.5.0_Linux_x86_64
+chmod -R +x sum_2.5.0_Linux_x86_64
+cp -r sum_2.5.0_Linux_x86_64 /usr/bin
+
 cat >> /etc/xdg/autostart/hardware_checkout.desktop << EOF
 [Desktop Entry]
-Name=Hardware Checkout
-GenericName=Verifies hardware
-Comment=Will verify the hardware to ensure it meets the proper requirements
-Exec=sudo /usr/bin/hardware_checkout.sh
+Name=Script Load
+GenericName=Loads scripts
+Comment=Will download scripts from network share
+Exec=sudo /usr/bin/loadscripts.sh
 Terminal=true
 Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
 
-wget https://raw.githubusercontent.com/sealingtech/hardware_checkout/master/configuration
-chmod +x configuration
-cp configuration /etc/configuration
 
 %end
 
@@ -511,6 +507,14 @@ perl-open
 ipmitool
 stress-ng
 lsscsi
+tar
+gcc
+make
+python
+wget
+git
+nano
+kernel-devel
 
 
 %end
